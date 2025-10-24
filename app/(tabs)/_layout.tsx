@@ -1,19 +1,19 @@
 import { Tabs } from 'expo-router';
-import React from 'react';
-import { I18nManager } from 'react-native';
+import { I18nManager, Platform } from 'react-native';
 
 import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useTheme } from '@/contexts/theme-context';
 import { MaterialIcons } from '@expo/vector-icons';
 
-// Enable RTL layout
-I18nManager.allowRTL(true);
-I18nManager.forceRTL(true);
+// Ensure RTL is enabled for tab layout
+if (!I18nManager.isRTL && Platform.OS !== 'web') {
+  I18nManager.allowRTL(true);
+  I18nManager.forceRTL(true);
+}
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  const { colorScheme } = useTheme();
 
   return (
     <Tabs
@@ -26,7 +26,7 @@ export default function TabLayout() {
           borderTopColor: Colors[colorScheme ?? 'light'].border,
           paddingBottom: 8,
           paddingTop: 8,
-          height: 70,
+          height: 90,
         },
         tabBarLabelStyle: {
           fontSize: 12,

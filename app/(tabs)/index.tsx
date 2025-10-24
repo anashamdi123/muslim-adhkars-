@@ -1,202 +1,129 @@
-import { StyleSheet, View, Text, useColorScheme, TouchableOpacity, ScrollView, Alert } from 'react-native';
-import { ThemedView } from '@/components/themed-view';
+import { AnimatedScreen } from '@/components/animated-screen';
+import { CommonHeader } from '@/components/common-header';
+import { StaggeredView } from '@/components/staggered-view';
 import { ThemedText } from '@/components/themed-text';
-import { MaterialIcons } from '@expo/vector-icons';
+import { ThemedView } from '@/components/themed-view';
+import { ADHKARS_GROUPS } from '@/constants/adhkars';
 import { Colors } from '@/constants/theme';
-import { useState } from 'react';
-
-interface AdhkarCategory {
-  id: string;
-  title: string;
-  icon: string;
-  count: number;
-  color: string;
-}
+import { useTheme } from '@/contexts/theme-context';
+import { MaterialIcons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import { Dimensions, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 export default function AdhkarScreen() {
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme ?? 'light'];
+  const { colorScheme } = useTheme();
+  const colors = Colors[colorScheme];
+  const router = useRouter();
+  const { width: screenWidth } = Dimensions.get('window');
 
-  const [categories] = useState<AdhkarCategory[]>([
-    { id: '1', title: 'أذكار الصباح', icon: 'wb-sunny', count: 15, color: '#f59e0b' },
-    { id: '2', title: 'أذكار المساء', icon: 'brightness-3', count: 12, color: '#8b5cf6' },
-    { id: '3', title: 'أذكار بعد الصلاة', icon: 'schedule', count: 8, color: '#22c55e' },
-    { id: '4', title: 'أذكار الأكل والشرب', icon: 'restaurant', count: 6, color: '#ef4444' },
-    { id: '5', title: 'أذكار السفر', icon: 'flight', count: 10, color: '#06b6d4' },
-    { id: '6', title: 'أذكار المنزل', icon: 'home', count: 7, color: '#f97316' },
-    { id: '7', title: 'أذكار النوم', icon: 'bedtime', count: 9, color: '#6366f1' },
-    { id: '8', title: 'أذكار عامة', icon: 'favorite', count: 20, color: '#ec4899' },
-    { id: '9', title: 'أذكار الحماية', icon: 'security', count: 11, color: '#10b981' },
-  ]);
-
-  const handleCategoryPress = (category: AdhkarCategory) => {
-    Alert.alert(
-      category.title,
-      `سيتم فتح ${category.count} من الأذكار`,
-      [{ text: 'موافق', style: 'default' }]
-    );
+  const handleCategoryPress = (categoryId: string) => {
+    router.push(`/adhkars/${categoryId}` as any);
   };
 
-  const resetAllCounters = () => {
-    Alert.alert(
-      'إعادة تعيين العدادات',
-      'هل تريد إعادة تعيين جميع عدادات الأذكار؟',
-      [
-        { text: 'إلغاء', style: 'cancel' },
-        { text: 'إعادة تعيين', style: 'destructive', onPress: () => {} }
-      ]
-    );
+  // Determine card width based on screen width for better grid spacing
+  const getCardWidth = () => {
+    const spacing = 16; // horizontal spacing between cards
+    if (screenWidth >= 1200) return (screenWidth - spacing * 6) / 5; // 5 columns
+    if (screenWidth >= 992) return (screenWidth - spacing * 5) / 4;  // 4 columns
+    if (screenWidth >= 768) return (screenWidth - spacing * 4) / 3;  // 3 columns
+    return (screenWidth - spacing * 3) / 2;                          // 2 columns
   };
+
+  const cardWidth = getCardWidth();
 
   return (
-    <ThemedView style={styles.container}>
-      <View style={styles.header}>
-        <ThemedText type="title" style={[styles.title, { color: colors.primary }]}>
-          الأذكار الإسلامية
-        </ThemedText>
-        <TouchableOpacity
-          style={[styles.resetButton, { backgroundColor: colors.surface }]}
-          onPress={resetAllCounters}
+    <AnimatedScreen animationType="slideUp" duration={400}>
+      <ThemedView style={styles.container}>
+        <CommonHeader 
+          title="الأذكار الإسلامية" 
+          showMenuButton={true}
+          showBackButton={false}
+        />
+
+        <ScrollView
+          style={styles.scrollView}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
         >
-          <MaterialIcons name="refresh" size={20} color={colors.primary} />
-        </TouchableOpacity>
-      </View>
+          <View style={styles.grid}>
+            {ADHKARS_GROUPS.map((category, index) => {
+              // Calculate total count of adhkars in all subcategories
+              const totalCount = category.subCategories.reduce(
+                (sum, sub) => sum + sub.adhkars.length,
+                0
+              );
 
-      <ScrollView 
-        style={styles.scrollView}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
-        <View style={styles.grid}>
-          {categories.map((category) => (
-            <TouchableOpacity
-              key={category.id}
-              style={[
-                styles.categoryCard,
-                { 
-                  backgroundColor: colors.surface,
-                  borderColor: colors.border,
-                }
-              ]}
-              onPress={() => handleCategoryPress(category)}
-            >
-              <View style={[styles.iconContainer, { backgroundColor: category.color + '20' }]}>
-                <MaterialIcons 
-                  name={category.icon as any} 
-                  size={32} 
-                  color={category.color} 
-                />
-              </View>
-              
-              <Text style={[styles.categoryTitle, { color: colors.text }]}>
-                {category.title}
-              </Text>
-              
-              <View style={[styles.countBadge, { backgroundColor: colors.primary }]}>
-                <Text style={styles.countText}>{category.count}</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </View>
+              return (
+                <StaggeredView
+                  key={category.id}
+                  index={index}
+                  animationType="spring"
+                  staggerDelay={80}
+                  duration={500}
+                >
+                  <TouchableOpacity
+                    style={[
+                      styles.categoryCard,
+                      {
+                        width: cardWidth,
+                        backgroundColor: colors.surface,
+                        borderColor: colors.border,
+                      },
+                    ]}
+                    onPress={() => handleCategoryPress(category.id)}
+                    activeOpacity={0.8}
+                  >
+                    <View style={[styles.iconContainer, { backgroundColor: category.color + '20' }]}>
+                      <MaterialIcons name={category.icon as any} size={32} color={category.color} />
+                    </View>
 
-        <View style={[styles.infoCard, { backgroundColor: colors.primary + '10' }]}>
-          <MaterialIcons name="info" size={20} color={colors.primary} />
-          <Text style={[styles.infoText, { color: colors.text }]}>
-            اضغط على أي فئة لعرض الأذكار والبدء في التسبيح
-          </Text>
-        </View>
-      </ScrollView>
-    </ThemedView>
+                    <ThemedText 
+                      type="title" 
+                      size="medium" 
+                      weight="bold"
+                      style={[styles.categoryTitle, { color: colors.text }]}
+                    >
+                      {category.title}
+                    </ThemedText>
+                    <ThemedText 
+                      type="label" 
+                      size="small" 
+                      weight="regular"
+                      style={[styles.categoryCount, { color: colors.muted }]}
+                    >
+                      {category.subCategories.length} قسم • {totalCount} ذِكر
+                    </ThemedText>
+                  </TouchableOpacity>
+                </StaggeredView>
+              );
+            })}
+          </View>
+        </ScrollView>
+      </ThemedView>
+    </AnimatedScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'transparent',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 10,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  resetButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-  },
+  container: { flex: 1, backgroundColor: 'transparent' },
+  scrollView: { flex: 1 },
+  scrollContent: { flexGrow: 1, paddingBottom: 20, paddingHorizontal: 12 },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    justifyContent: 'space-between', // distributes cards evenly in each row
   },
   categoryCard: {
-    width: '48%',
     aspectRatio: 1,
     borderRadius: 16,
     padding: 16,
-    marginBottom: 16,
+    marginBottom: 16, // vertical spacing
     borderWidth: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    position: 'relative',
   },
-  iconContainer: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  categoryTitle: {
-    fontSize: 14,
-    fontWeight: '600',
-    textAlign: 'center',
-    lineHeight: 18,
-  },
-  countBadge: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  countText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: 'bold',
-  },
-  infoCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    borderRadius: 12,
-    marginTop: 10,
-  },
-  infoText: {
-    flex: 1,
-    fontSize: 14,
-    marginLeft: 12,
-    textAlign: 'right',
-  },
+  iconContainer: { width: 60, height: 60, borderRadius: 30, justifyContent: 'center', alignItems: 'center', marginBottom: 12 },
+  categoryTitle: { fontSize: 14, fontWeight: '600', textAlign: 'center', lineHeight: 18 },
+  categoryCount: { fontSize: 12, marginTop: 4, textAlign: 'center', opacity: 0.7 },
 });
+  

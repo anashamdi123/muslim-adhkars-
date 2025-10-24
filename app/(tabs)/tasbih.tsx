@@ -1,233 +1,115 @@
-import { StyleSheet, View, Text, useColorScheme, TouchableOpacity, ScrollView } from 'react-native';
-import { ThemedView } from '@/components/themed-view';
+import { AnimatedScreen } from '@/components/animated-screen';
+import { CommonHeader } from '@/components/common-header';
 import { ThemedText } from '@/components/themed-text';
-import { MaterialIcons } from '@expo/vector-icons';
+import { ThemedView } from '@/components/themed-view';
 import { Colors } from '@/constants/theme';
+import { useTheme } from '@/contexts/theme-context';
 import { useState } from 'react';
+import { StyleSheet, TouchableOpacity } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
 export default function TasbihScreen() {
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme ?? 'light'];
+  const { colorScheme } = useTheme();
+  const colors = Colors[colorScheme];
   const [count, setCount] = useState(0);
-  const [selectedDhikr, setSelectedDhikr] = useState('سبحان الله');
 
-  const dhikrOptions = [
-    'سبحان الله',
-    'الحمد لله',
-    'الله أكبر',
-    'لا إله إلا الله',
-    'أستغفر الله',
-  ];
+  const scale = useSharedValue(1);
 
-  const incrementCount = () => {
-    setCount(count + 1);
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  const increment = () => {
+    scale.value = withSpring(0.9, {}, () => {
+      scale.value = withSpring(1);
+    });
+    setCount((c) => c + 1);
   };
 
-  const resetCount = () => {
+  const reset = () => {
     setCount(0);
   };
 
-  const undoCount = () => {
-    if (count > 0) {
-      setCount(count - 1);
-    }
-  };
 
   return (
-    <ThemedView style={styles.container}>
-      <ThemedText type="title" style={[styles.title, { color: colors.primary }]}>
-        التسبيح
-      </ThemedText>
+    <AnimatedScreen animationType="fade" duration={350}>
+      <ThemedView style={styles.container}>
+      <CommonHeader title="التسبيح" titleSize={28} paddingBottom={30} />
 
-      <ScrollView 
-        horizontal 
-        showsHorizontalScrollIndicator={false}
-        style={styles.dhikrSelector}
-        contentContainerStyle={styles.dhikrSelectorContent}
-      >
-        {dhikrOptions.map((dhikr) => (
-          <TouchableOpacity
-            key={dhikr}
-            style={[
-              styles.dhikrOption,
-              {
-                backgroundColor: selectedDhikr === dhikr ? colors.primary : colors.surface,
-                borderColor: colors.border,
-              }
-            ]}
-            onPress={() => setSelectedDhikr(dhikr)}
+      <ThemedView style={styles.content}>
+        <TouchableOpacity style={styles.counterButton} onPress={increment} activeOpacity={0.8}>
+          <Animated.View style={[styles.counterCircle, animatedStyle, { backgroundColor: colors.surface, borderColor: colors.primary }]}>
+            <ThemedText
+              type="display"
+              size="large"
+              weight="bold"
+              style={[styles.countText, { color: colors.primary }]}
+            >
+              {count}
+            </ThemedText>
+          </Animated.View>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={[styles.resetButton, { backgroundColor: colors.surface }]} 
+          onPress={reset}
+          activeOpacity={0.7}
+        >
+          <ThemedText
+            type="body"
+            size="medium"
+            weight="medium"
+            style={{ color: colors.text }}
           >
-            <Text style={[
-              styles.dhikrOptionText,
-              { color: selectedDhikr === dhikr ? '#fff' : colors.text }
-            ]}>
-              {dhikr}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-
-      <View style={styles.counterContainer}>
-        <Text style={[styles.selectedDhikr, { color: colors.text }]}>
-          {selectedDhikr}
-        </Text>
-        
-        <TouchableOpacity
-          style={[styles.counterButton, { borderColor: colors.primary }]}
-          onPress={incrementCount}
-        >
-          <Text style={[styles.counterText, { color: colors.primary }]}>
-            {count}
-          </Text>
+            إعادة تعيين
+          </ThemedText>
         </TouchableOpacity>
-
-        <View style={styles.progressContainer}>
-          <View style={[styles.progressBar, { backgroundColor: colors.surface }]}>
-            <View 
-              style={[
-                styles.progressFill,
-                { 
-                  backgroundColor: colors.primary,
-                  width: `${Math.min((count % 33) / 33 * 100, 100)}%`
-                }
-              ]} 
-            />
-          </View>
-          <Text style={[styles.progressText, { color: colors.icon }]}>
-            {count % 33}/33
-          </Text>
-        </View>
-      </View>
-
-      <View style={styles.controlsContainer}>
-        <TouchableOpacity
-          style={[styles.controlButton, { backgroundColor: colors.surface }]}
-          onPress={undoCount}
-        >
-          <MaterialIcons name="undo" size={24} color={colors.primary} />
-          <Text style={[styles.controlButtonText, { color: colors.text }]}>تراجع</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.controlButton, { backgroundColor: colors.surface }]}
-          onPress={resetCount}
-        >
-          <MaterialIcons name="refresh" size={24} color={colors.primary} />
-          <Text style={[styles.controlButtonText, { color: colors.text }]}>إعادة تعيين</Text>
-        </TouchableOpacity>
-      </View>
-
-      {count > 0 && count % 33 === 0 && (
-        <View style={[styles.completionBadge, { backgroundColor: colors.success }]}>
-          <MaterialIcons name="check-circle" size={24} color="#fff" />
-          <Text style={styles.completionText}>
-            مبارك! أكملت {Math.floor(count / 33)} دورة
-          </Text>
-        </View>
-      )}
-    </ThemedView>
+      </ThemedView>
+      </ThemedView>
+    </AnimatedScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  container: { 
     flex: 1,
-    padding: 20,
   },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  dhikrSelector: {
-    marginBottom: 30,
-  },
-  dhikrSelectorContent: {
-    paddingHorizontal: 10,
-  },
-  dhikrOption: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
-    marginHorizontal: 5,
-    borderWidth: 1,
-  },
-  dhikrOptionText: {
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  counterContainer: {
+  content: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  selectedDhikr: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 30,
-    textAlign: 'center',
+    paddingHorizontal: 20,
+    gap: 40,
   },
   counterButton: {
-    width: 200,
-    height: 200,
-    borderRadius: 100,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  counterCircle: {
+    width: 280,
+    height: 280,
+    borderRadius: 140,
     borderWidth: 4,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 30,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 8,
   },
-  counterText: {
-    fontSize: 48,
-    fontWeight: 'bold',
+  countText: { 
+    fontSize: 80,
+    lineHeight: 90,
   },
-  progressContainer: {
-    width: '80%',
-    alignItems: 'center',
-  },
-  progressBar: {
-    width: '100%',
-    height: 8,
-    borderRadius: 4,
-    overflow: 'hidden',
-    marginBottom: 10,
-  },
-  progressFill: {
-    height: '100%',
-    borderRadius: 4,
-  },
-  progressText: {
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  controlsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginTop: 20,
-  },
-  controlButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 10,
-  },
-  controlButtonText: {
-    fontSize: 16,
-    marginLeft: 8,
-  },
-  completionBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 15,
-    borderRadius: 10,
-    marginTop: 20,
-  },
-  completionText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginLeft: 10,
+  resetButton: {
+    paddingHorizontal: 32,
+    paddingVertical: 14,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
   },
 });
