@@ -2,7 +2,7 @@ import { Tabs } from 'expo-router';
 import { I18nManager, Platform } from 'react-native';
 
 import { HapticTab } from '@/components/haptic-tab';
-import { Colors } from '@/constants/theme';
+import { BorderRadius, Colors, Shadows, Spacing } from '@/constants/theme';
 import { useTheme } from '@/contexts/theme-context';
 import { MaterialIcons } from '@expo/vector-icons';
 
@@ -15,23 +15,34 @@ if (!I18nManager.isRTL && Platform.OS !== 'web') {
 export default function TabLayout() {
   const { colorScheme } = useTheme();
 
+  const colors = Colors[colorScheme ?? 'dark'];
+
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.muted,
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarStyle: {
-          backgroundColor: Colors[colorScheme ?? 'light'].background,
-          borderTopColor: Colors[colorScheme ?? 'light'].border,
-          paddingBottom: 8,
-          paddingTop: 8,
-          height: 90,
+          backgroundColor: colors.card,
+          borderTopWidth: 0,
+          borderTopColor: 'transparent',
+          paddingBottom: Platform.OS === 'ios' ? 20 : Spacing.md,
+          paddingTop: Spacing.md,
+          paddingHorizontal: Spacing.lg,
+          height: Platform.OS === 'ios' ? 85 : 70,
+          ...Shadows.md,
+          elevation: 8,
         },
         tabBarLabelStyle: {
           fontSize: 12,
           fontWeight: '600',
           marginTop: 4,
+          fontFamily: 'Cairo_600SemiBold',
+        },
+        tabBarIconStyle: {
+          marginBottom: -2,
         },
       }}>
       <Tabs.Screen

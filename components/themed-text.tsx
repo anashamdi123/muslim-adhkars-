@@ -1,14 +1,16 @@
 import { I18nManager, StyleSheet, Text, type TextProps } from 'react-native';
 
-import { getArabicFont, Typography } from '@/constants/theme';
+import { getArabicFont, getDisplayFont, Typography } from '@/constants/theme';
 import { useThemeColor } from '@/hooks/use-theme-color';
 
 export type ThemedTextProps = TextProps & {
   lightColor?: string;
   darkColor?: string;
-  type?: 'default' | 'title' | 'subtitle' | 'headline' | 'body' | 'label' | 'display';
+  type?: 'default' | 'title' | 'subtitle' | 'headline' | 'body' | 'label' | 'display' | 'adhkar';
   size?: 'small' | 'medium' | 'large';
-  weight?: 'regular' | 'medium' | 'semiBold' | 'bold' | 'display';
+  weight?: 'regular' | 'medium' | 'semiBold' | 'bold' | 'extraBold';
+  // Use display font (Noto Kufi Arabic) for Quranic text and adhkars
+  useDisplayFont?: boolean;
 };
 
 export function ThemedText({
@@ -18,6 +20,7 @@ export function ThemedText({
   type = 'default',
   size = 'medium',
   weight = 'regular',
+  useDisplayFont = false,
   ...rest
 }: ThemedTextProps) {
   const color = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
@@ -35,6 +38,8 @@ export function ThemedText({
         return Typography.body[size];
       case 'label':
         return Typography.label[size];
+      case 'adhkar':
+        return Typography.adhkar[size];
       case 'subtitle':
         return Typography.headline.medium;
       default:
@@ -44,15 +49,21 @@ export function ThemedText({
 
   const typographyStyle = getTypographyStyle();
 
+  // Use Noto Kufi Arabic for adhkars/Quranic text, Cairo for UI text
+  const fontFamily = (useDisplayFont || type === 'adhkar') 
+    ? getDisplayFont(weight)
+    : getArabicFont(weight);
+
   return (
     <Text
       style={[
         {
           color,
-          fontFamily: getArabicFont(weight),
+          fontFamily,
           ...typographyStyle,
           writingDirection: 'rtl',
-          textAlign: I18nManager.isRTL ? 'right' : 'left',
+          // Always use right alignment for Arabic text
+          textAlign: 'right',
         },
         style,
       ]}
