@@ -163,7 +163,6 @@ function RootNavigator() {
 }
 
 export default function RootLayout() {
-
   const [fontsLoaded] = useFonts({
     Cairo_400Regular,
     Cairo_500Medium,

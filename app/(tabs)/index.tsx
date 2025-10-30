@@ -36,7 +36,6 @@ export default function AdhkarScreen() {
       <ThemedView style={styles.container}>
         <CommonHeader 
           title="الأذكار الإسلامية" 
-          showMenuButton={true}
           showBackButton={false}
         />
 

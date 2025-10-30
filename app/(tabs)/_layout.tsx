@@ -2,7 +2,7 @@ import { Tabs } from 'expo-router';
 import { I18nManager, Platform } from 'react-native';
 
 import { HapticTab } from '@/components/haptic-tab';
-import { BorderRadius, Colors, Shadows, Spacing } from '@/constants/theme';
+import { Colors, Shadows, Spacing } from '@/constants/theme';
 import { useTheme } from '@/contexts/theme-context';
 import { MaterialIcons } from '@expo/vector-icons';
 

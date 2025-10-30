@@ -48,7 +48,6 @@ export default function SubCategoryListScreen() {
       <ThemedView style={styles.container}>
         <CommonHeader 
           title={category.title} 
-          showMenuButton={false}
           showBackButton={true}
         />
 

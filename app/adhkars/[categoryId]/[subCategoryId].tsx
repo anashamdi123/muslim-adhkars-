@@ -3,300 +3,111 @@ import { CommonHeader } from '@/components/common-header';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { ADHKARS_GROUPS } from '@/constants/adhkars';
-import { Colors, getArabicFont } from '@/constants/theme';
+import { BorderRadius, Colors, Spacing } from '@/constants/theme';
 import { useTheme } from '@/contexts/theme-context';
-import { MaterialIcons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useLocalSearchParams } from 'expo-router';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  Dimensions,
   FlatList,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
   View,
-  ViewToken
 } from 'react-native';
-import Animated, {
-  Easing,
-  FadeIn,
-  FadeOut,
-  useAnimatedProps,
-  useAnimatedStyle,
-  useSharedValue,
-  withSequence,
-  withTiming
-} from 'react-native-reanimated';
-import Svg, { Circle } from 'react-native-svg';
 
-
-// ✅ Enhanced animated circular progress component with improved animations
-const AnimatedCircle = Animated.createAnimatedComponent(Circle);
-
-const CircularProgress = ({
-  progress,
-  size,
-  strokeWidth,
-  color,
-  backgroundColor,
-  count,
-}: {
-  progress: number;
-  size: number;
-  strokeWidth: number;
-  color: string;
-  backgroundColor: string;
-  count: number;
-}) => {
-  const radius = (size - strokeWidth) / 2;
-  const circumference = 2 * Math.PI * radius;
-
-  // Create shared values for all animations
-  const progressValue = useSharedValue(progress);
-  const scaleValue = useSharedValue(1);
-  const rotateValue = useSharedValue(0);
-  const opacityValue = useSharedValue(1);
-
-  // Enhanced animation update with multiple visual effects
-  useEffect(() => {
-    // Animate progress with a smooth easing function
-    progressValue.value = withTiming(progress, {
-      duration: 200,
-      easing: Easing.out(Easing.exp),
-    });
-
-    // Add a more dynamic bounce effect on tap
-    scaleValue.value = withSequence(
-      withTiming(1.15, { 
-        duration: 80,
-        easing: Easing.out(Easing.quad)
-      }),
-      withTiming(1, { 
-        duration: 120,
-        easing: Easing.out(Easing.quad)
-      })
-    );
-
-    // Add a subtle rotation effect for visual interest
-    if (progress > 0) {
-      rotateValue.value = withTiming(5, {
-        duration: 200,
-        easing: Easing.out(Easing.exp)
-      });
-    } else {
-      rotateValue.value = withTiming(0, {
-        duration: 300,
-        easing: Easing.out(Easing.exp)
-      });
-    }
-
-    // Pulse opacity for completed state
-    if (progress === 1) {
-      opacityValue.value = withSequence(
-        withTiming(0.7, { duration: 150 }),
-        withTiming(1, { duration: 150 })
-      );
-    }
-  }, [progress]);
-
-  // Animated props for the progress circle
-  const animatedCircleProps = useAnimatedProps(() => ({
-    strokeDashoffset: circumference * (1 - progressValue.value),
-  }));
-
-  // Animated style for the entire component
-  const animatedContainerStyle = useAnimatedStyle(() => ({
-    transform: [
-      { scale: scaleValue.value },
-      { rotate: `${rotateValue.value}deg` }
-    ],
-    opacity: opacityValue.value,
-  }));
-
-  return (
-    <Animated.View
-      style={[{ alignItems: 'center', justifyContent: 'center' }, animatedContainerStyle]}
-    >
-      <Svg width={size} height={size}>
-        {/* Background track with subtle glow effect */}
-        <Circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          stroke={backgroundColor}
-          strokeWidth={strokeWidth}
-          fill="none"
-          opacity={0.3}
-        />
-        {/* Animated progress spinner with gradient effect simulation */}
-        <AnimatedCircle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          stroke={color}
-          strokeWidth={strokeWidth + 1}
-          strokeDasharray={circumference}
-          animatedProps={animatedCircleProps}
-          strokeLinecap="round"
-          fill="none"
-          rotation="-90"
-          originX={size / 2}
-          originY={size / 2}
-        />
-      </Svg>
-
-      {/* Number or check icon with enhanced animations */}
-      {count > 0 ? (
-        <Animated.View
-          key="count"
-          entering={FadeIn.duration(150).springify().damping(15)}
-          exiting={FadeOut.duration(100).easing(Easing.out(Easing.exp))}
-          style={{
-            position: 'absolute',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <ThemedText style={{ 
-            fontSize: 32, 
-            fontWeight: 'bold', 
-            color,
-            textShadowColor: 'rgba(0,0,0,0.1)',
-            textShadowOffset: { width: 0, height: 1 },
-            textShadowRadius: 2,
-          }}>
-            {count}
-          </ThemedText>
-        </Animated.View>
-      ) : (
-        <Animated.View
-          key="check"
-          entering={FadeIn.duration(200).springify().damping(12).stiffness(200)}
-          exiting={FadeOut.duration(150).easing(Easing.out(Easing.exp))}
-          style={{
-            position: 'absolute',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <MaterialIcons 
-            name="check-circle" 
-            size={44} 
-            color={color} 
-            style={{
-              textShadowColor: 'rgba(0,0,0,0.2)',
-              textShadowOffset: { width: 0, height: 2 },
-              textShadowRadius: 4,
-            }}
-          />
-        </Animated.View>
-      )}
-    </Animated.View>
-  );
-};
-
-
-// 🕌 Main Screen
 export default function DhikrDetailScreen() {
-  const { categoryId, subCategoryId } = useLocalSearchParams();
+  const { categoryId, subCategoryId } = useLocalSearchParams<{ categoryId: string; subCategoryId: string }>();
   const { colorScheme } = useTheme();
   const colors = Colors[colorScheme];
+  const flatListRef = useRef<FlatList>(null);
+  const scrollTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const category = ADHKARS_GROUPS.find((item) => item.id === categoryId);
   const subCategory = category?.subCategories.find((item) => item.id === subCategoryId);
 
-  const flatListRef = useRef<FlatList>(null);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [counts, setCounts] = useState<{ [key: string]: number }>({});
-  const [isInitialized, setIsInitialized] = useState(false);
-  const [isCompleted, setIsCompleted] = useState(false);
-  const { height } = Dimensions.get('window');
-  const completionOpacity = useSharedValue(0);
+  const [counts, setCounts] = useState<Record<string, number>>({});
 
-  // initialize counts
+  // ✅ Initialize counters
   useEffect(() => {
     if (subCategory?.adhkars) {
-      const initialCounts: { [key: string]: number } = {};
-      subCategory.adhkars.forEach((adhkar, index) => {
-        const key = `${categoryId}-${subCategoryId}-${index}`;
-        initialCounts[key] = adhkar.repetitions || 0;
+      const initialCounts: Record<string, number> = {};
+      subCategory.adhkars.forEach((adhkar, i) => {
+        initialCounts[`${categoryId}-${subCategoryId}-${i}`] = adhkar.repetitions || 0;
       });
       setCounts(initialCounts);
-      setIsInitialized(true);
     }
   }, [categoryId, subCategoryId]);
 
-  // detect completion
-  useEffect(() => {
-    const allCounts = Object.values(counts);
-    if (allCounts.length > 0 && allCounts.every((c) => c === 0)) {
-      setIsCompleted(true);
-      completionOpacity.value = withTiming(1, { duration: 300 });
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    } else {
-      setIsCompleted(false);
-      completionOpacity.value = 0;
-    }
-  }, [counts]);
-
-  const onViewableItemsChanged = useRef(({ viewableItems }: { viewableItems: ViewToken[] }) => {
-    if (viewableItems.length > 0 && viewableItems[0].index !== null) {
-      setCurrentIndex(viewableItems[0].index);
-    }
-  }).current;
-
-  const viewabilityConfig = useRef({
-    itemVisiblePercentThreshold: 50,
-  }).current;
-
-  const completionAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: completionOpacity.value,
-  }));
-
   const handlePress = useCallback(
     (index: number) => {
-      if (!subCategory) return;
       const key = `${categoryId}-${subCategoryId}-${index}`;
-
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-
-      setCounts((prev) => {
-        const currentCount = prev[key] || 0;
-        if (currentCount > 0) {
-          const updatedCounts = { ...prev, [key]: currentCount - 1 };
-
-          // scroll to next dhikr after finishing one
-          if (currentCount - 1 === 0 && index + 1 < (subCategory?.adhkars.length || 0)) {
-            setTimeout(() => {
-              flatListRef.current?.scrollToIndex({ index: index + 1, animated: true });
-            }, 600);
+      const currentCount = counts[key] || 0;
+      
+      Haptics.selectionAsync();
+      
+      // Update count if greater than 0
+      if (currentCount > 0) {
+        setCounts((prev) => {
+          const newCount = currentCount - 1;
+          const updatedCounts = { ...prev, [key]: newCount };
+          
+          // If count reached zero, scroll to next card after delay
+          if (newCount === 0) {
+            // Clear any existing timeout
+            if (scrollTimeoutRef.current) {
+              clearTimeout(scrollTimeoutRef.current);
+            }
+            
+            // Set new timeout to scroll to next card
+            scrollTimeoutRef.current = setTimeout(() => {
+              // Scroll to next card only if it's not the last one
+              if (index < (subCategory?.adhkars.length || 0) - 1) {
+                flatListRef.current?.scrollToIndex({
+                  index: index + 1,
+                  animated: true,
+                });
+              }
+            }, 400);
           }
-
+          
           return updatedCounts;
+        });
+      } else {
+        // If already at zero, scroll to next card immediately after delay
+        // Clear any existing timeout
+        if (scrollTimeoutRef.current) {
+          clearTimeout(scrollTimeoutRef.current);
         }
-        return prev;
-      });
+        
+        // Set new timeout to scroll to next card
+        scrollTimeoutRef.current = setTimeout(() => {
+          // Scroll to next card only if it's not the last one
+          if (index < (subCategory?.adhkars.length || 0) - 1) {
+            flatListRef.current?.scrollToIndex({
+              index: index + 1,
+              animated: true,
+            });
+          }
+        }, 400);
+      }
     },
-    [categoryId, subCategoryId, subCategory]
+    [categoryId, subCategoryId, counts, subCategory?.adhkars.length]
   );
+
+  // Clean up timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
+  }, []);
 
   if (!category || !subCategory) {
     return (
       <ThemedView style={styles.center}>
-        <MaterialIcons name="error-outline" size={40} color={colors.muted} />
-        <ThemedText style={{ color: colors.muted }}>لم يتم العثور على الفئة</ThemedText>
-      </ThemedView>
-    );
-  }
-
-  if (!isInitialized) {
-    return (
-      <ThemedView style={styles.center}>
-        <MaterialIcons name="hourglass-empty" size={40} color={colors.primary} />
-        <ThemedText style={{ color: colors.muted, fontFamily: getArabicFont() }}>
-          جاري التحميل...
-        </ThemedText>
+        <ThemedText style={{ color: colors.muted }}>الفئة غير موجودة</ThemedText>
       </ThemedView>
     );
   }
@@ -304,236 +115,114 @@ export default function DhikrDetailScreen() {
   const renderDhikrCard = ({ item, index }: { item: any; index: number }) => {
     const key = `${categoryId}-${subCategoryId}-${index}`;
     const count = counts[key] || 0;
-    const isFinished = count === 0;
-    const initialRepetitions = item.repetitions || 0;
-    const progress =
-      initialRepetitions > 0 ? 1 - count / initialRepetitions : initialRepetitions === 0 ? 1 : 0;
 
     return (
-      <View style={[styles.cardContainer, { height }]}>
-        <TouchableOpacity
-          onPress={() => handlePress(index)}
-          activeOpacity={0.95}
-          style={[
-            styles.card,
-            {
-              backgroundColor: colors.card,
-              opacity: isCompleted && !isFinished ? 0.5 : 1,
-            },
-          ]}
-        >
+      <View style={styles.cardContainer}>
+        <View style={[styles.card, { 
+          backgroundColor: colors.card, 
+          borderColor: colors.border,
+          borderRadius: BorderRadius.xl,
+          minHeight: 300,
+        }]}>
+          {/* Scrollable text area */}
           <ScrollView
-            contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
-            bounces={false}
+            nestedScrollEnabled
+            contentContainerStyle={styles.scrollArea}
           >
             <ThemedText
-              style={[
-                styles.text,
-                {
-                  color: colors.text,
-                  fontFamily: getArabicFont(),
-                  textAlign: 'justify',
-                },
-              ]}
+              type="adhkar"
+              size="medium"
+              useDisplayFont
+              style={styles.dhikrText}
             >
-              {item?.text || ''}
+              {item.text}
             </ThemedText>
 
             {item.reference && (
-              <View style={[styles.referenceContainer, { backgroundColor: colors.surface }]}>
-                <MaterialIcons name="info-outline" size={14} color={colors.muted} />
-                <ThemedText style={[styles.reference, { color: colors.muted }]} numberOfLines={2}>
-                  {item.reference}
-                </ThemedText>
-              </View>
+              <ThemedText 
+                type="body" 
+                size="small" 
+                style={[styles.referenceText, { color: colors.textSecondary }]}
+              >
+                {item.reference}
+              </ThemedText>
             )}
           </ScrollView>
 
-          {/* 🌀 Counter Spinner */}
-          <View style={styles.counterContainer}>
-            <CircularProgress
-              progress={progress}
-              size={90}
-              strokeWidth={5}
-              color={colors.primary}
-              backgroundColor={colors.border}
-              count={count}
-            />
-          </View>
-
-          {/* Progress indicator */}
-          <View style={styles.progressContainer}>
-            <ThemedText style={[styles.progressText, { color: colors.muted }]}>
-              {index + 1} / {subCategory?.adhkars.length || 0}
+          {/* Bottom counter */}
+          <TouchableOpacity
+            style={[styles.counterButton, { backgroundColor: colors.primary }]}
+            activeOpacity={0.7}
+            onPress={() => handlePress(index)}
+          >
+            <ThemedText type="title" size="large" style={styles.counterText}>
+              {count}
             </ThemedText>
-          </View>
-        </TouchableOpacity>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   };
 
   return (
-    <AnimatedScreen animationType="slideRight" duration={350}>
+    <AnimatedScreen animationType="slideRight" duration={250}>
       <ThemedView style={styles.container}>
-        <CommonHeader title={subCategory?.title || ''} showBackButton={true} showMenuButton={false} />
-
+        <CommonHeader
+          title={subCategory?.title || ''}
+          showBackButton
+        />
         <FlatList
           ref={flatListRef}
           data={subCategory?.adhkars || []}
-          keyExtractor={(_, i) => i.toString()}
           renderItem={renderDhikrCard}
-          pagingEnabled
+          keyExtractor={(_, i) => i.toString()}
           showsVerticalScrollIndicator={false}
-          decelerationRate="fast"
-          snapToInterval={height}
-          snapToAlignment="start"
-          onViewableItemsChanged={onViewableItemsChanged}
-          viewabilityConfig={viewabilityConfig}
-          getItemLayout={(_, index) => ({
-            length: height,
-            offset: height * index,
-            index,
-          })}
-          initialNumToRender={2}
-          maxToRenderPerBatch={3}
-          windowSize={5}
-          removeClippedSubviews={true}
+          contentContainerStyle={{ paddingVertical: Spacing.lg }}
         />
-
-        {/* ✅ Completion Overlay */}
-        {isCompleted && (
-          <Animated.View
-            entering={FadeIn.duration(400)}
-            exiting={FadeOut.duration(300)}
-            style={[
-              styles.completionOverlay,
-              completionAnimatedStyle,
-              { backgroundColor: colors.primary + '15' },
-            ]}
-          >
-            <View style={[styles.completionCard, { backgroundColor: colors.card }]}>
-              <MaterialIcons name="check-circle" size={64} color={colors.primary} />
-              <ThemedText
-                type="headline"
-                size="large"
-                weight="bold"
-                style={[styles.completionTitle, { color: colors.primary }]}
-              >
-                ✅ تم الانتهاء من الأذكار
-              </ThemedText>
-              <ThemedText
-                type="body"
-                size="medium"
-                weight="regular"
-                style={[styles.completionSubtitle, { color: colors.muted }]}
-              >
-                بارك الله فيك
-              </ThemedText>
-            </View>
-          </Animated.View>
-        )}
       </ThemedView>
     </AnimatedScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: 'transparent' },
-  center: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: 10,
-    padding: 20,
-  },
+  container: { flex: 1 },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+
+  // 💫 Simplified card
   cardContainer: {
-    width: '100%',
-    justifyContent: 'flex-start',
     alignItems: 'center',
-    paddingTop: 0,
+    marginBottom: Spacing.xxl,
   },
   card: {
-    width: '90%',
-    height: '85%',
-    borderRadius: 24,
-    padding: 20,
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.1,
-    shadowRadius: 16,
-    elevation: 8,
+    width: '92%',
+    minHeight: 300,
+    overflow: 'hidden',
+    borderWidth: 0.5,
   },
-  scrollContent: {
-    flexGrow: 1,
+  scrollArea: {
+    paddingHorizontal: Spacing.xxl,
+    paddingVertical: Spacing.xxl,
+    alignItems: 'center',
     justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 20,
-  },
-  text: {
-    fontSize: 24,
-    writingDirection: 'rtl',
-    lineHeight: 40,
-    paddingHorizontal: 8,
-    textAlign: 'justify',
-  },
-  referenceContainer: {
-    flexDirection: 'row-reverse',
-    alignItems: 'center',
-    gap: 6,
-    marginTop: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-  },
-  reference: {
-    fontSize: 11,
-    fontStyle: 'italic',
     flex: 1,
   },
-  counterContainer: {
-    width: 90,
-    height: 90,
+  dhikrText: {
+    textAlign: 'center',
+    lineHeight: 40,
+    marginBottom: Spacing.lg,
+  },
+  referenceText: {
+    textAlign: 'center',
+    marginTop: Spacing.xl,
+    marginBottom: Spacing.lg,
+  },
+  counterButton: {
+    paddingVertical: Spacing.xl,
     alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 20,
   },
-  progressContainer: {
-    position: 'absolute',
-    top: 16,
-    right: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
-    backgroundColor: 'rgba(0,0,0,0.1)',
-  },
-  progressText: {
-    fontSize: 12,
+  counterText: {
+    color: '#fff',
     fontWeight: '600',
   },
-  completionOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 100,
-  },
-  completionCard: {
-    padding: 32,
-    borderRadius: 24,
-    alignItems: 'center',
-    gap: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 20,
-    elevation: 12,
-  },
-  completionTitle: { fontSize: 24, textAlign: 'center' },
-  completionSubtitle: { fontSize: 16, textAlign: 'center' },
 });
