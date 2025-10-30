@@ -15,6 +15,122 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
+
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+
+  // 💫 Simplified card
+  cardContainer: {
+    alignItems: 'center',
+    marginBottom: Spacing.xxl,
+  },
+  card: {
+    width: '92%',
+    minHeight: 300,
+    overflow: 'hidden',
+    borderWidth: 0.5,
+  },
+  scrollArea: {
+    paddingHorizontal: Spacing.xxl,
+    paddingVertical: Spacing.xxl,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flex: 1,
+  },
+  dhikrText: {
+    textAlign: 'center',
+    lineHeight: 40,
+    marginBottom: Spacing.lg,
+  },
+  referenceText: {
+    textAlign: 'center',
+    marginTop: Spacing.xl,
+    marginBottom: Spacing.lg,
+  },
+  counterButton: {
+    paddingVertical: Spacing.xl,
+    alignItems: 'center',
+  },
+  counterText: {
+    color: '#fff',
+    fontWeight: '600',
+  },
+});
+
+// Separate component for dhikr card to properly use hooks
+const DhikrCard = ({ item, index, count, colors, onPress }: any) => {
+  const scale = useSharedValue(1);
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: scale.value }],
+    };
+  });
+
+  const handleCardPress = () => {
+    // Trigger simple scale animation
+    scale.value = withTiming(0.95, { duration: 100 });
+    setTimeout(() => {
+      scale.value = withTiming(1, { duration: 100 });
+    }, 100);
+    Haptics.selectionAsync();
+    onPress();
+  };
+
+  return (
+    <View style={styles.cardContainer}>
+      <Animated.View style={[styles.card, { 
+        backgroundColor: colors.card, 
+        borderColor: colors.border,
+        borderRadius: BorderRadius.xl,
+        minHeight: 300,
+      }, animatedStyle]}>
+        {/* Scrollable text area */}
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          nestedScrollEnabled
+          contentContainerStyle={styles.scrollArea}
+        >
+          <ThemedText
+            type="adhkar"
+            size="medium"
+            useDisplayFont
+            style={styles.dhikrText}
+          >
+            {item.text}
+          </ThemedText>
+
+          {item.reference && (
+            <ThemedText 
+              type="body" 
+              size="small" 
+              style={[styles.referenceText, { color: colors.textSecondary }]}
+            >
+              {item.reference}
+            </ThemedText>
+          )}
+        </ScrollView>
+
+        {/* Bottom counter */}
+        <TouchableOpacity
+          style={[styles.counterButton, { backgroundColor: colors.primary }]}
+          activeOpacity={0.7}
+          onPress={handleCardPress}
+        >
+          <ThemedText type="title" size="large" style={styles.counterText}>
+            {count}
+          </ThemedText>
+        </TouchableOpacity>
+      </Animated.View>
+    </View>
+  );
+};
 
 export default function DhikrDetailScreen() {
   const { categoryId, subCategoryId } = useLocalSearchParams<{ categoryId: string; subCategoryId: string }>();
@@ -117,51 +233,13 @@ export default function DhikrDetailScreen() {
     const count = counts[key] || 0;
 
     return (
-      <View style={styles.cardContainer}>
-        <View style={[styles.card, { 
-          backgroundColor: colors.card, 
-          borderColor: colors.border,
-          borderRadius: BorderRadius.xl,
-          minHeight: 300,
-        }]}>
-          {/* Scrollable text area */}
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            nestedScrollEnabled
-            contentContainerStyle={styles.scrollArea}
-          >
-            <ThemedText
-              type="adhkar"
-              size="medium"
-              useDisplayFont
-              style={styles.dhikrText}
-            >
-              {item.text}
-            </ThemedText>
-
-            {item.reference && (
-              <ThemedText 
-                type="body" 
-                size="small" 
-                style={[styles.referenceText, { color: colors.textSecondary }]}
-              >
-                {item.reference}
-              </ThemedText>
-            )}
-          </ScrollView>
-
-          {/* Bottom counter */}
-          <TouchableOpacity
-            style={[styles.counterButton, { backgroundColor: colors.primary }]}
-            activeOpacity={0.7}
-            onPress={() => handlePress(index)}
-          >
-            <ThemedText type="title" size="large" style={styles.counterText}>
-              {count}
-            </ThemedText>
-          </TouchableOpacity>
-        </View>
-      </View>
+      <DhikrCard
+        item={item}
+        index={index}
+        count={count}
+        colors={colors}
+        onPress={() => handlePress(index)}
+      />
     );
   };
 
@@ -184,45 +262,3 @@ export default function DhikrDetailScreen() {
     </AnimatedScreen>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-
-  // 💫 Simplified card
-  cardContainer: {
-    alignItems: 'center',
-    marginBottom: Spacing.xxl,
-  },
-  card: {
-    width: '92%',
-    minHeight: 300,
-    overflow: 'hidden',
-    borderWidth: 0.5,
-  },
-  scrollArea: {
-    paddingHorizontal: Spacing.xxl,
-    paddingVertical: Spacing.xxl,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-  },
-  dhikrText: {
-    textAlign: 'center',
-    lineHeight: 40,
-    marginBottom: Spacing.lg,
-  },
-  referenceText: {
-    textAlign: 'center',
-    marginTop: Spacing.xl,
-    marginBottom: Spacing.lg,
-  },
-  counterButton: {
-    paddingVertical: Spacing.xl,
-    alignItems: 'center',
-  },
-  counterText: {
-    color: '#fff',
-    fontWeight: '600',
-  },
-});

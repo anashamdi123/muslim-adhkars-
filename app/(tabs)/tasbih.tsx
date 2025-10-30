@@ -4,8 +4,8 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Colors, Spacing } from '@/constants/theme';
 import { useTheme } from '@/contexts/theme-context';
-import { useState } from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, TouchableOpacity } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 
 export default function TasbihScreen() {
@@ -15,15 +15,16 @@ export default function TasbihScreen() {
 
   const scale = useSharedValue(1);
 
+  // Animate scale on tap
   const animatedStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
   }));
 
   const increment = () => {
-    scale.value = withSpring(0.9, {}, () => {
-      scale.value = withSpring(1);
+    scale.value = withSpring(0.9, { stiffness: 200, damping: 15 }, () => {
+      scale.value = withSpring(1, { stiffness: 150, damping: 12 });
     });
-    setCount((c) => c + 1);
+    setCount((prev) => prev + 1);
   };
 
   const reset = () => {
@@ -33,49 +34,39 @@ export default function TasbihScreen() {
   return (
     <AnimatedScreen animationType="fade" duration={350}>
       <ThemedView style={styles.container}>
-        <CommonHeader 
-          title="التسبيح" 
-          showResetButton={true}
-          onResetPress={reset}
-        />
+        <CommonHeader title="التسبيح" showResetButton onResetPress={reset} />
 
-        {/* Whole content area is now tappable */}
         <TouchableOpacity
           style={styles.touchableArea}
-          onPress={increment}
           activeOpacity={0.8}
+          onPress={increment}
         >
-          <Animated.View style={[styles.animatedContent, animatedStyle]}>
-            <View style={styles.counterContainer}>
-              <ThemedText
-                type="display"
-                size="large"
-                weight="bold"
-                style={[styles.countText, { color: colors.primary }]}
-                numberOfLines={1}
-                adjustsFontSizeToFit={true}
-                minimumFontScale={0.5}
-              >
-                {count}
-              </ThemedText>
-            </View>
+          <Animated.View style={[styles.counterContainer, animatedStyle]}>
+            <ThemedText
+              type="display"
+              size="large"
+              weight="bold"
+              style={[styles.countText, { color: colors.primary }]}
+              numberOfLines={1}
+              adjustsFontSizeToFit
+              minimumFontScale={0.5}
+            >
+              {count}
+            </ThemedText>
           </Animated.View>
         </TouchableOpacity>
-
-        {/* Remove the old reset button since we're using the header button now */}
       </ThemedView>
     </AnimatedScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { 
+  container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    direction: 'rtl', // RTL support
-    gap: Spacing.xxxl + Spacing.md,
     paddingHorizontal: Spacing.xl,
+    gap: Spacing.xl,
   },
   touchableArea: {
     flex: 1,
@@ -83,22 +74,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
   },
-  animatedContent: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: '100%',
-  },
   counterContainer: {
-    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    width: '100%',
   },
-  countText: { 
-    fontSize: 80,
-    lineHeight: 90,
+  countText: {
+    fontSize: 90,
+    lineHeight: 100,
     textAlign: 'center',
-    width: '100%',
   },
 });

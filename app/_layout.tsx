@@ -19,6 +19,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { I18nManager, Platform } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 
 import { Colors } from '@/constants/theme';
@@ -115,50 +116,52 @@ function RootNavigator() {
   };
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? customDarkTheme : customLightTheme}>
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          // RTL: screens slide from right (entering from right side)
-          animation: Platform.OS === 'ios' ? 'slide_from_right' : 'fade_from_bottom',
-          animationDuration: 300,
-          gestureEnabled: true,
-          gestureDirection: 'horizontal',
-        }}
-      >
-        <Stack.Screen 
-          name="(tabs)" 
-          options={{ 
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ThemeProvider value={colorScheme === 'dark' ? customDarkTheme : customLightTheme}>
+        <Stack
+          screenOptions={{
             headerShown: false,
-            animation: 'fade',
-            animationDuration: 200,
-          }} 
-        />
-        <Stack.Screen 
-          name="adhkars/[id]" 
-          options={{ 
-            headerShown: false,
-            animation: 'slide_from_right', // RTL: enter from right
+            // RTL: screens slide from right (entering from right side)
+            animation: Platform.OS === 'ios' ? 'slide_from_right' : 'fade_from_bottom',
             animationDuration: 300,
             gestureEnabled: true,
-          }} 
+            gestureDirection: 'horizontal',
+          }}
+        >
+          <Stack.Screen 
+            name="(tabs)" 
+            options={{ 
+              headerShown: false,
+              animation: 'fade',
+              animationDuration: 200,
+            }} 
+          />
+          <Stack.Screen 
+            name="adhkars/[id]" 
+            options={{ 
+              headerShown: false,
+              animation: 'slide_from_right', // RTL: enter from right
+              animationDuration: 300,
+              gestureEnabled: true,
+            }} 
+          />
+          <Stack.Screen 
+            name="modal" 
+            options={{ 
+              presentation: 'modal', 
+              title: 'Modal',
+              animation: 'slide_from_bottom',
+              animationDuration: 350,
+            }} 
+          />
+        </Stack>
+        <StatusBar 
+          style={colorScheme === 'dark' ? 'light' : 'dark'} 
+          translucent={true}
+          backgroundColor="transparent"
         />
-        <Stack.Screen 
-          name="modal" 
-          options={{ 
-            presentation: 'modal', 
-            title: 'Modal',
-            animation: 'slide_from_bottom',
-            animationDuration: 350,
-          }} 
-        />
-      </Stack>
-      <StatusBar 
-        style={colorScheme === 'dark' ? 'light' : 'dark'} 
-        translucent={true}
-        backgroundColor="transparent"
-      />
-    </ThemeProvider>
+      </ThemeProvider>
+    </GestureHandlerRootView>
   );
 }
 

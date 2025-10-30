@@ -1,3 +1,4 @@
+import { AnimatedScreen } from '@/components/animated-screen';
 import { CommonHeader } from '@/components/common-header';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -58,46 +59,48 @@ export default function DhikrDetailScreen() {
   const currentDhikr = category.adhkars[currentIndex];
 
   return (
-    <ThemedView style={{ flex: 1 }}>
-      <CommonHeader title={category.title} showBackButton />
-      <FlatList
-        data={[currentDhikr]}
-        keyExtractor={(_, i) => i.toString()}
-        pagingEnabled
-        showsVerticalScrollIndicator={false}
-        scrollEnabled={false} // Disable manual scroll, only programmatic
-        renderItem={() => (
-          <View style={[styles.card, { height: height - 100, backgroundColor: colors.card }]}>
-            <TouchableOpacity onPress={() => handlePress(currentIndex)} activeOpacity={0.9} style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-              <ThemedText 
-                type="adhkar" 
-                size="medium" 
-                weight="medium"
-                useDisplayFont={true}
-                style={[styles.text, { color: colors.text }]}
-              >
-                {currentDhikr.text}
-              </ThemedText>
+    <AnimatedScreen animationType="slideLeft" duration={300}>
+      <ThemedView style={{ flex: 1 }}>
+        <CommonHeader title={category.title} showBackButton />
+        <FlatList
+          data={[currentDhikr]}
+          keyExtractor={(_, i) => i.toString()}
+          pagingEnabled
+          showsVerticalScrollIndicator={false}
+          scrollEnabled={false} // Disable manual scroll, only programmatic
+          renderItem={() => (
+            <View style={[styles.card, { height: height - 100, backgroundColor: colors.card }]}>
+              <TouchableOpacity onPress={() => handlePress(currentIndex)} activeOpacity={0.9} style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                <ThemedText 
+                  type="adhkar" 
+                  size="medium" 
+                  weight="medium"
+                  useDisplayFont={true}
+                  style={[styles.text, { color: colors.text }]}
+                >
+                  {currentDhikr.text}
+                </ThemedText>
 
-              <Animated.View
-                style={[styles.counterCircle, { borderColor: colors.primary, transform: [{ scale: scale.value }] }]}
-              >
-                {counts[currentIndex] === 0 ? (
-                  <MaterialIcons name="check" size={30} color={colors.primary} />
-                ) : (
-                  <ThemedText style={[styles.count, { color: colors.primary }]}>{counts[currentIndex] || 0}</ThemedText>
-                )}
-              </Animated.View>
-            </TouchableOpacity>
+                <Animated.View
+                  style={[styles.counterCircle, { borderColor: colors.primary, transform: [{ scale: scale.value }] }]}
+                >
+                  {counts[currentIndex] === 0 ? (
+                    <MaterialIcons name="check" size={30} color={colors.primary} />
+                  ) : (
+                    <ThemedText style={[styles.count, { color: colors.primary }]}>{counts[currentIndex] || 0}</ThemedText>
+                  )}
+                </Animated.View>
+              </TouchableOpacity>
+            </View>
+          )}
+        />
+        {currentIndex === counts.length - 1 && counts[currentIndex] === 0 && (
+          <View style={styles.completedMessage}>
+            <ThemedText style={{ color: colors.primary, fontSize: 18 }}>✅ تم الانتهاء من الأذكار</ThemedText>
           </View>
         )}
-      />
-      {currentIndex === counts.length - 1 && counts[currentIndex] === 0 && (
-        <View style={styles.completedMessage}>
-          <ThemedText style={{ color: colors.primary, fontSize: 18 }}>✅ تم الانتهاء من الأذكار</ThemedText>
-        </View>
-      )}
-    </ThemedView>
+      </ThemedView>
+    </AnimatedScreen>
   );
 }
 
