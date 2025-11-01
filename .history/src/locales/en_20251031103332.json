@@ -1,0 +1,33 @@
+{
+  "appName": "Muslim Adhkars",
+  "tabs": {
+    "adhkars": "Adhkars",
+    "tasbih": "Tasbih",
+    "qibla": "Qibla",
+    "prayers": "Prayers"
+  },
+  "common": {
+    "back": "Back",
+    "close": "Close",
+    "done": "Done",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "share": "Share",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "noData": "No data"
+  },
+  "settings": {
+    "title": "Settings",
+    "theme": "Theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "language": "Language",
+    "about": "About",
+    "version": "Version"
+  }
+}
+

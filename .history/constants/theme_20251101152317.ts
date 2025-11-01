@@ -64,39 +64,39 @@ export const getDisplayFont = (weight: 'regular' | 'medium' | 'semiBold' | 'bold
 export const Typography = {
   // Display sizes (for large headers and hero text)
   display: {
-    large: { fontSize: 36, lineHeight: 72, letterSpacing: 0.5 },
-    medium: { fontSize: 30, lineHeight: 60, letterSpacing: 0.4 },
-    small: { fontSize: 26, lineHeight: 52, letterSpacing: 0.3 },
+    large: { fontSize: 36, lineHeight: 58, letterSpacing: 0.5 },
+    medium: { fontSize: 30, lineHeight: 50, letterSpacing: 0.4 },
+    small: { fontSize: 26, lineHeight: 42, letterSpacing: 0.3 },
   },
   // Headline sizes (for section headers)
   headline: {
-    large: { fontSize: 24, lineHeight: 48, letterSpacing: 0.4 },
-    medium: { fontSize: 20, lineHeight: 44, letterSpacing: 0.35 },
-    small: { fontSize: 18, lineHeight: 40, letterSpacing: 0.3 },
+    large: { fontSize: 24, lineHeight: 40, letterSpacing: 0.4 },
+    medium: { fontSize: 20, lineHeight: 36, letterSpacing: 0.35 },
+    small: { fontSize: 18, lineHeight: 32, letterSpacing: 0.3 },
   },
   // Title sizes (for card titles, navigation)
   title: {
-    large: { fontSize: 18, lineHeight: 40, letterSpacing: 0.35 },
-    medium: { fontSize: 16, lineHeight: 36, letterSpacing: 0.3 },
-    small: { fontSize: 14, lineHeight: 32, letterSpacing: 0.25 },
+    large: { fontSize: 18, lineHeight: 32, letterSpacing: 0.35 },
+    medium: { fontSize: 16, lineHeight: 28, letterSpacing: 0.3 },
+    small: { fontSize: 14, lineHeight: 24, letterSpacing: 0.25 },
   },
   // Body text sizes (for content)
   body: {
-    large: { fontSize: 17, lineHeight: 40, letterSpacing: 0.5 },
-    medium: { fontSize: 15, lineHeight: 36, letterSpacing: 0.45 },
-    small: { fontSize: 13, lineHeight: 32, letterSpacing: 0.4 },
+    large: { fontSize: 17, lineHeight: 32, letterSpacing: 0.5 },
+    medium: { fontSize: 15, lineHeight: 28, letterSpacing: 0.45 },
+    small: { fontSize: 13, lineHeight: 24, letterSpacing: 0.4 },
   },
   // Label sizes (for buttons, tabs, metadata)
   label: {
-    large: { fontSize: 15, lineHeight: 34, letterSpacing: 0.3 },
-    medium: { fontSize: 13, lineHeight: 30, letterSpacing: 0.5 },
-    small: { fontSize: 11, lineHeight: 26, letterSpacing: 0.5 },
+    large: { fontSize: 15, lineHeight: 26, letterSpacing: 0.3 },
+    medium: { fontSize: 13, lineHeight: 22, letterSpacing: 0.5 },
+    small: { fontSize: 11, lineHeight: 20, letterSpacing: 0.5 },
   },
   // Adhkar text (special sizing for Quranic verses and adhkars with extra spacing)
   adhkar: {
-    large: { fontSize: 28, lineHeight: 64, letterSpacing: 0.6 },
-    medium: { fontSize: 24, lineHeight: 56, letterSpacing: 0.5 },
-    small: { fontSize: 20, lineHeight: 48, letterSpacing: 0.4 },
+    large: { fontSize: 28, lineHeight: 52, letterSpacing: 0.6 },
+    medium: { fontSize: 24, lineHeight: 46, letterSpacing: 0.5 },
+    small: { fontSize: 20, lineHeight: 40, letterSpacing: 0.4 },
   },
 };
 

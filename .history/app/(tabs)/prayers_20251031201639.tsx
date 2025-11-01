@@ -211,9 +211,9 @@ export default function PrayersScreen() {
           <View style={[styles.countdownSection, { backgroundColor: colors.card }]}>
             {/* Location */}
             {location && (
-              <View style={styles.timerLocationRow}>
+              <View style={styles.locationRow}>
                 <MaterialIcons name="location-on" size={14} color={colors.primary} />
-                <ThemedText type="body" size="medium" style={{ color: colors.textSecondary, marginEnd: 4 }}>
+                <ThemedText type="body" size="medium" style={{ color: colors.textSecondary, marginRight: 4 }}>
                   {location}
                 </ThemedText>
                 {offline && (
@@ -228,6 +228,9 @@ export default function PrayersScreen() {
                 <ThemedText type="display" size="large" weight="bold" style={[styles.timerNumber, { color: colors.primary }]}>
                   {timeRemaining.hours}
                 </ThemedText>
+                <ThemedText type="label" size="small" style={{ color: colors.textSecondary }}>
+                  ساعة
+                </ThemedText>
               </View>
 
               <ThemedText type="display" size="large" weight="bold" style={[styles.timerColon, { color: colors.primary }]}>
@@ -238,6 +241,9 @@ export default function PrayersScreen() {
                 <ThemedText type="display" size="large" weight="bold" style={[styles.timerNumber, { color: colors.primary }]}>
                   {timeRemaining.minutes}
                 </ThemedText>
+                <ThemedText type="label" size="small" style={{ color: colors.textSecondary }}>
+                  دقيقة
+                </ThemedText>
               </View>
 
               <ThemedText type="display" size="large" weight="bold" style={[styles.timerColon, { color: colors.primary }]}>
@@ -247,6 +253,9 @@ export default function PrayersScreen() {
               <View style={styles.timerUnit}>
                 <ThemedText type="display" size="large" weight="bold" style={[styles.timerNumber, { color: colors.primary }]}>
                   {timeRemaining.seconds}
+                </ThemedText>
+                <ThemedText type="label" size="small" style={{ color: colors.textSecondary }}>
+                  ثانية
                 </ThemedText>
               </View>
             </View>
@@ -399,17 +408,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: Spacing.sm,
   },
-  timerLocationRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: Spacing.md,
-    justifyContent: 'center',
-  },
   offlineDot: {
     width: 6,
     height: 6,
     borderRadius: 3,
-    marginEnd: Spacing.xs,
+    marginRight: Spacing.xs,
   },
 
   // Prayer List Section

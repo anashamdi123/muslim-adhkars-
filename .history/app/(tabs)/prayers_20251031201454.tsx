@@ -7,7 +7,7 @@ import { useTheme } from "@/contexts/theme-context";
 import { usePrayerTimesEnhanced } from "@/hooks/use-prayer-times-enhanced";
 import { formatFullDate } from "@/utils/hijri-date";
 import { MaterialIcons } from "@expo/vector-icons";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { ActivityIndicator, ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
@@ -98,7 +98,7 @@ export default function PrayersScreen() {
       if (event.translationX > 80) {
         navigateDay('prev');
       } else if (event.translationX < -80) {
-        navigateDay('prev');
+        navigateDay('next');
       }
     });
 
@@ -209,24 +209,22 @@ export default function PrayersScreen() {
         {/* Fixed Top Section: Countdown Timer */}
         {nextPrayer && (
           <View style={[styles.countdownSection, { backgroundColor: colors.card }]}>
-            {/* Location */}
-            {location && (
-              <View style={styles.timerLocationRow}>
-                <MaterialIcons name="location-on" size={14} color={colors.primary} />
-                <ThemedText type="body" size="medium" style={{ color: colors.textSecondary, marginEnd: 4 }}>
-                  {location}
-                </ThemedText>
-                {offline && (
-                  <View style={[styles.offlineDot, { backgroundColor: colors.error }]} />
-                )}
-              </View>
-            )}
+            <ThemedText
+              type="body"
+              size="medium"
+              style={{ color: colors.textSecondary, marginBottom: Spacing.sm }}
+            >
+              {timeRemaining.text}
+            </ThemedText>
 
             {/* Digital Timer */}
             <View style={styles.timerDisplay}>
               <View style={styles.timerUnit}>
                 <ThemedText type="display" size="large" weight="bold" style={[styles.timerNumber, { color: colors.primary }]}>
                   {timeRemaining.hours}
+                </ThemedText>
+                <ThemedText type="label" size="small" style={{ color: colors.textSecondary }}>
+                  ساعة
                 </ThemedText>
               </View>
 
@@ -238,6 +236,9 @@ export default function PrayersScreen() {
                 <ThemedText type="display" size="large" weight="bold" style={[styles.timerNumber, { color: colors.primary }]}>
                   {timeRemaining.minutes}
                 </ThemedText>
+                <ThemedText type="label" size="small" style={{ color: colors.textSecondary }}>
+                  دقيقة
+                </ThemedText>
               </View>
 
               <ThemedText type="display" size="large" weight="bold" style={[styles.timerColon, { color: colors.primary }]}>
@@ -247,6 +248,9 @@ export default function PrayersScreen() {
               <View style={styles.timerUnit}>
                 <ThemedText type="display" size="large" weight="bold" style={[styles.timerNumber, { color: colors.primary }]}>
                   {timeRemaining.seconds}
+                </ThemedText>
+                <ThemedText type="label" size="small" style={{ color: colors.textSecondary }}>
+                  ثانية
                 </ThemedText>
               </View>
             </View>
@@ -265,7 +269,7 @@ export default function PrayersScreen() {
                 {/* Date Navigation Header */}
                 <View style={[styles.dateSection, { borderBottomColor: colors.border }]}>
                   <TouchableOpacity
-                    onPress={() => navigateDay('next')}
+                    onPress={() => navigateDay('prev')}
                     style={styles.dateNavButton}
                     activeOpacity={0.7}
                   >
@@ -294,10 +298,23 @@ export default function PrayersScreen() {
                     <ThemedText type="body" size="small" style={{ color: colors.textSecondary, marginTop: Spacing.xs, textAlign: 'center' }}>
                       {dateInfo.hijri}
                     </ThemedText>
+
+                    {/* Location */}
+                    {location && (
+                      <View style={styles.locationRow}>
+                        <MaterialIcons name="location-on" size={14} color={colors.primary} />
+                        <ThemedText type="label" size="small" style={{ color: colors.textSecondary, marginRight: 4 }}>
+                          {location}
+                        </ThemedText>
+                        {offline && (
+                          <View style={[styles.offlineDot, { backgroundColor: colors.error }]} />
+                        )}
+                      </View>
+                    )}
                   </View>
 
                   <TouchableOpacity
-                    onPress={() => navigateDay('prev')}
+                    onPress={() => navigateDay('next')}
                     style={styles.dateNavButton}
                     activeOpacity={0.7}
                   >
@@ -399,17 +416,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: Spacing.sm,
   },
-  timerLocationRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: Spacing.md,
-    justifyContent: 'center',
-  },
   offlineDot: {
     width: 6,
     height: 6,
     borderRadius: 3,
-    marginEnd: Spacing.xs,
+    marginRight: Spacing.xs,
   },
 
   // Prayer List Section

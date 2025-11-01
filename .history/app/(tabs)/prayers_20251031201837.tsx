@@ -213,7 +213,7 @@ export default function PrayersScreen() {
             {location && (
               <View style={styles.timerLocationRow}>
                 <MaterialIcons name="location-on" size={14} color={colors.primary} />
-                <ThemedText type="body" size="medium" style={{ color: colors.textSecondary, marginEnd: 4 }}>
+                <ThemedText type="body" size="medium" style={{ color: colors.textSecondary, marginRight: 4 }}>
                   {location}
                 </ThemedText>
                 {offline && (
@@ -409,7 +409,7 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
-    marginEnd: Spacing.xs,
+    marginRight: Spacing.xs,
   },
 
   // Prayer List Section

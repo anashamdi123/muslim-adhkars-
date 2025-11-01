@@ -1,16 +1,16 @@
 import {
-  Cairo_400Regular,
-  Cairo_500Medium,
-  Cairo_600SemiBold,
-  Cairo_700Bold,
-  Cairo_800ExtraBold,
+    Cairo_400Regular,
+    Cairo_500Medium,
+    Cairo_600SemiBold,
+    Cairo_700Bold,
+    Cairo_800ExtraBold,
 } from '@expo-google-fonts/cairo';
 import {
-  NotoKufiArabic_400Regular,
-  NotoKufiArabic_500Medium,
-  NotoKufiArabic_600SemiBold,
-  NotoKufiArabic_700Bold,
-  NotoKufiArabic_800ExtraBold,
+    NotoKufiArabic_400Regular,
+    NotoKufiArabic_500Medium,
+    NotoKufiArabic_600SemiBold,
+    NotoKufiArabic_700Bold,
+    NotoKufiArabic_800ExtraBold,
 } from '@expo-google-fonts/noto-kufi-arabic';
 import { Theme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
@@ -18,34 +18,18 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import { I18nManager, Platform } from 'react-native';
+import { Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 
 import { Colors } from '@/constants/theme';
 import { CustomThemeProvider, useTheme } from '@/contexts/theme-context';
+import '@/src/i18n';
 
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
 
-// Force RTL layout globally for Arabic app
-// This must be done before any components are rendered
-I18nManager.allowRTL(true);
-I18nManager.forceRTL(true);
-
-// Check if RTL is not enabled and reload if necessary (only on native)
-if (Platform.OS !== 'web' && !I18nManager.isRTL) {
-  // On native platforms, need to reload for RTL to take effect
-  // This will only run once on first launch
-  try {
-    const RNRestart = require('react-native').NativeModules.DevSettings;
-    if (RNRestart) {
-      RNRestart.reload();
-    }
-  } catch (error) {
-    console.warn('Could not reload app for RTL:', error);
-  }
-}
+// i18n initialization above will set RTL/LTR as needed
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -116,7 +100,7 @@ function RootNavigator() {
   };
 
   return (
-    <GestureHandlerRootView style={{ flex: 1, writingDirection: 'rtl' }}>
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <ThemeProvider value={colorScheme === 'dark' ? customDarkTheme : customLightTheme}>
         <Stack
           screenOptions={{
@@ -180,16 +164,6 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    // Ensure RTL direction on web DOM
-    if (Platform.OS === 'web') {
-      try {
-        document.documentElement.setAttribute('dir', 'rtl');
-        document.body.setAttribute('dir', 'rtl');
-        // Optional: ensure body uses Cairo font if available
-        document.body.style.fontFamily = `'Cairo_400Regular', 'Cairo', 'Noto Kufi Arabic', sans-serif`;
-      } catch {}
-    }
-
     if (fontsLoaded) {
       SplashScreen.hideAsync();
     }

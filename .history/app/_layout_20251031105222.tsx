@@ -1,16 +1,16 @@
 import {
-  Cairo_400Regular,
-  Cairo_500Medium,
-  Cairo_600SemiBold,
-  Cairo_700Bold,
-  Cairo_800ExtraBold,
+    Cairo_400Regular,
+    Cairo_500Medium,
+    Cairo_600SemiBold,
+    Cairo_700Bold,
+    Cairo_800ExtraBold,
 } from '@expo-google-fonts/cairo';
 import {
-  NotoKufiArabic_400Regular,
-  NotoKufiArabic_500Medium,
-  NotoKufiArabic_600SemiBold,
-  NotoKufiArabic_700Bold,
-  NotoKufiArabic_800ExtraBold,
+    NotoKufiArabic_400Regular,
+    NotoKufiArabic_500Medium,
+    NotoKufiArabic_600SemiBold,
+    NotoKufiArabic_700Bold,
+    NotoKufiArabic_800ExtraBold,
 } from '@expo-google-fonts/noto-kufi-arabic';
 import { Theme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';

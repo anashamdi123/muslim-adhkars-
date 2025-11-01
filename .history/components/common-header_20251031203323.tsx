@@ -60,7 +60,7 @@ export function CommonHeader({
             activeOpacity={0.7}
           >
             <MaterialIcons
-              name={getDirectionalIcon('back') as any}
+              name="arrow-back"
               size={26}
               color={colors.text}
             />
